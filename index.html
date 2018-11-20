@@ -34,7 +34,7 @@
       <div class="col-md-12 col-lg-12">
 
         <div class="player text-center">
-          <video-player dash-manifest-url='http://shaka.com/video/h264.mpd' poster='http://shaka.com/poster.png' ></video-player>
+          <video-player dash-manifest-url='http://shaka.com/video/h264.mpd' poster='http://shaka.com/poster.png'></video-player>
         </div>
 
         <div class="player text-center">
@@ -52,8 +52,12 @@
        <div class="col-md-12">
           <div ref="videoPlayer" class="video-player">
 
-            <img v-bind:class="{'hide-buffer': !isBuffering, 'show-buffer': isBuffering }" class="buffer" src="./buffer.svg" width=100 height=100/>
-    
+            <div class="buffer" v-bind:class="{'hide-buffer': !isBuffering, 'show-buffer': isBuffering }">
+                <div>
+                    <img src="./buffer.svg" width=100 height=100/>
+                </div>
+            </div>
+            
             <video ref="video" :poster="poster"></video>
     
             <div ref="videoControls" class="row video-controls">
@@ -66,27 +70,34 @@
                     <span>{{ currentTimeText }} / {{ durationText }}</span>
                 </div>
     
-                <div class="col-md-6 m-t-8 align-middle">
+                <div class="col-md-6 m-t-10 align-middle">
                   <div ref="progressBar" class="bar"></div>
                 </div>
     
                 <div class="col-md-2 align-middle">
                     <div class="row">
                       <div class="col-md-2">
-                          <span class="fas fa-volume-up float-left">&nbsp;</span>
+                          <span class="fas fa-volume-up">&nbsp;</span>
                       </div>
-                      <div class="col-md-8 m-t-8">
+                      <div class="col-md-8 m-t-10">
                           <div ref="volumeBar" class="bar"></div>
                       </div>
                     </div>
                 </div>
     
                 <div class="col-md-2 align-middle">
-                    <span v-if="!fullScreenView" v-on:click="fullScreen()" class="fas fa-expand control">&nbsp;</span>
-                    <span v-if="fullScreenView" v-on:click="normalScreen()" class="fas fa-compress control">&nbsp;</span>
-                    <select class="control" v-on:change="setTrack">
-                      <option :selected="index === selectedTrack" v-for="(track, index) in videoTracks" :value="index">{{ track.height }}</option>
-                    </select>
+                  <div class="row">
+                    <div class="col-md-2">
+                        <span v-if="!fullScreenView" v-on:click="fullScreen()" class="fas fa-expand">&nbsp;</span>
+                        <span v-if="fullScreenView" v-on:click="normalScreen()" class="fas fa-compress">&nbsp;</span>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="control quality" v-on:change="setTrack">
+                            <option :selected="index === selectedTrack" v-for="(track, index) in videoTracks" :value="index">{{ track.height }}p</option>
+                          </select>
+                    </div>
+                  </div>
+                  
                 </div>
             </div>
     

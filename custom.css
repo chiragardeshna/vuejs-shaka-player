@@ -12,9 +12,14 @@ video {
 }
 
 .buffer {
-    position: absolute;
-    top: 31%;
-    left: 43%;
+    position: absolute; 
+    left: 50%;
+    top: 40%;
+}
+
+.buffer div{
+    position: relative; 
+    left: -50%;
 }
 
 .show-buffer {
@@ -40,9 +45,9 @@ video {
 }
 
 .video-controls{
-    /* padding-top: 10px; */
-    background-color: rgba(128,128,128,0.7);
-    /* border-top: 1px solid white; */
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
     color: white;
     position: absolute;
     left:0;
@@ -66,16 +71,15 @@ video {
 }
 
 .bar{
-    /* margin-top: 1.4% !important; */
-    height: 13% !important;
+    height: 20% !important;
 }
 
-.m-t-8 {
-    margin-top: 8px;
+.m-t-10 {
+    margin-top: 10px;
 }
 
 .ui-slider-horizontal .ui-slider-handle {
-    top: none !important;
+    top: -0.35em !important;
     border-radius: 11px;
     width: 0.8em!important;
     height: 0.8em!important;
@@ -95,5 +99,10 @@ a.ui-button:active,
 
 .ui-visual-focus {
 	box-shadow: 0 0 3px 1px gray!important;
+}
+
+.quality, .quality option {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
 }
 
