@@ -1,0 +1,99 @@
+.player progress {
+    width: 100%
+}
+
+.control{
+    float: left;
+    margin-left: 15px;
+}
+
+video {
+    width: 100%
+}
+
+.buffer {
+    position: absolute;
+    top: 31%;
+    left: 43%;
+}
+
+.show-buffer {
+    z-index: 0;
+    opacity: 0.7;
+}
+
+.hide-buffer {
+    z-index: -1;
+}
+
+.video-player {
+    overflow: hidden;
+    position: relative;
+}
+
+.video-player:-webkit-full-screen {
+    width: 100%;
+}
+
+.video-player:-moz-full-screen {
+    width: 100%;
+}
+
+.video-controls{
+    /* padding-top: 10px; */
+    background-color: rgba(128,128,128,0.7);
+    /* border-top: 1px solid white; */
+    color: white;
+    position: absolute;
+    left:0;
+    right:0;
+    bottom: 1%;;
+    -webkit-animation: smooth 1s ease-in;
+    -moz-animation: smooth 1s ease-in;
+    -o-animation: smooth 1s ease-in;
+    -ms-animation: smooth 1s ease-in;
+    animation: smooth 1s ease-in;
+}
+
+@-webkit-keyframes smooth  {
+    0% { opacity: 0;}
+    100% { opacity: 1;}
+}
+
+@-moz-keyframes smooth{
+    0% { opacity: 0;}
+    100% { opacity: 1;}
+}
+
+.bar{
+    /* margin-top: 1.4% !important; */
+    height: 13% !important;
+}
+
+.m-t-8 {
+    margin-top: 8px;
+}
+
+.ui-slider-horizontal .ui-slider-handle {
+    top: none !important;
+    border-radius: 11px;
+    width: 0.8em!important;
+    height: 0.8em!important;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+a.ui-button:active,
+.ui-button:active,
+.ui-button.ui-state-active:hover {
+    border: 1px solid black !important;
+    background: gray!important;
+    box-shadow: none!important;
+    font-weight: bolder!important;
+}
+
+.ui-visual-focus {
+	box-shadow: 0 0 3px 1px gray!important;
+}
+
