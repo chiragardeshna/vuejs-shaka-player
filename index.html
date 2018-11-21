@@ -37,9 +37,9 @@
           <video-player dash-manifest-url='http://shaka.com/video/h264.mpd' poster='http://shaka.com/poster.png'></video-player>
         </div>
 
-        <div class="player text-center">
+        <!-- <div class="player text-center">
           <video-player dash-manifest-url='http://shaka.com/video/h264.mpd'></video-player>
-        </div>
+        </div> -->
 
       </div>
     </div>
@@ -54,24 +54,24 @@
 
             <div class="buffer" v-bind:class="{'hide-buffer': !isBuffering, 'show-buffer': isBuffering }">
                 <div>
-                    <img src="./buffer.svg" width=100 height=100/>
+                    <img src="./buffer1.svg" width=80 height=80/>
                 </div>
             </div>
             
-            <video ref="video" :poster="poster"></video>
+            <video ref="video" :poster="poster" v-on:ended="endedEvent"></video>
     
             <div ref="videoControls" class="row video-controls">
               
                 <div class="col-md-2 align-middle">
-                    <span class="fas fa-play" v-if="status === 'stopped'" v-on:click="playPause()"></span>
-                    <span class="fas fa-pause" v-if="status === 'playing'" v-on:click="playPause()" ></span>
-                    <span class="fas fa-redo" v-if="status === 'ended'" v-on:click="playPause()" ></span>
+                    <span title="Play" class="fas fa-play control" v-if="status === 'stopped'" v-on:click="playPause()"></span>
+                    <span title="Pause" class="fas fa-pause control" v-if="status === 'playing'" v-on:click="playPause()" ></span>
+                    <span title="Replay" class="fas fa-redo control" v-if="status === 'ended'" v-on:click="playPause()" ></span>
                     &nbsp;
                     <span>{{ currentTimeText }} / {{ durationText }}</span>
                 </div>
     
                 <div class="col-md-6 m-t-10 align-middle">
-                  <div ref="progressBar" class="bar"></div>
+                  <div ref="progressBar" class="bar control"></div>
                 </div>
     
                 <div class="col-md-2 align-middle">
@@ -80,7 +80,7 @@
                           <span class="fas fa-volume-up">&nbsp;</span>
                       </div>
                       <div class="col-md-8 m-t-10">
-                          <div ref="volumeBar" class="bar"></div>
+                          <div ref="volumeBar" class="bar control"></div>
                       </div>
                     </div>
                 </div>
@@ -88,13 +88,13 @@
                 <div class="col-md-2 align-middle">
                   <div class="row">
                     <div class="col-md-2">
-                        <span v-if="!fullScreenView" v-on:click="fullScreen()" class="fas fa-expand">&nbsp;</span>
-                        <span v-if="fullScreenView" v-on:click="normalScreen()" class="fas fa-compress">&nbsp;</span>
+                        <span title="Enter Fullscreen" v-if="!fullScreenView" v-on:click="fullScreen()" class="fas fa-expand control">&nbsp;</span>
+                        <span title="Exit Fullscreen" v-if="fullScreenView" v-on:click="normalScreen()" class="fas fa-compress control">&nbsp;</span>
                     </div>
                     <div class="col-md-4">
-                        <select class="control quality" v-on:change="setTrack">
+                        <select title="Change Quality" class="m-t-15 quality control" v-on:change="setTrack">
                             <option :selected="index === selectedTrack" v-for="(track, index) in videoTracks" :value="index">{{ track.height }}p</option>
-                          </select>
+                        </select>
                     </div>
                   </div>
                   

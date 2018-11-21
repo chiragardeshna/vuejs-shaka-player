@@ -19,7 +19,7 @@ Vue.component('video-player', {
     props: ['dashManifestUrl', 'hlsManifestUrl', 'poster'],
     data: function () {
         return {
-            status: 'stopped', // 'playing', 'stopped', 'ended'
+            status: 'stopped', // 'playing', 'stopped', 'buffering'
             isBuffering: false,
             durationText: '00:00',
             currentTimeText: '00:00',
@@ -34,17 +34,15 @@ Vue.component('video-player', {
     mounted: function () {
         var _this = this;
 
-        console.log(this.poster);
-
         var video = this.video = this.$refs.video;
 
         window.player = this.shakaPlayer = new shaka.Player(this.video);
 
         // this.shakaPlayer.addEventListener('error', onErrorEvent);
 
-        this.shakaPlayer.addEventListener('buffering', this.buffering);
+        this.shakaPlayer.addEventListener('buffering', this.bufferingEvent);
 
-        this.shakaPlayer.addEventListener('adaptation', this.trackChanged);
+        this.shakaPlayer.addEventListener('adaptation', this.trackChangedEvent);
 
         var onSuccess = this.initiate();
 
@@ -62,8 +60,7 @@ Vue.component('video-player', {
                 if (_this.video.readyState > 0) {
 
                     // Set video duration
-                    var duration = Math.round(_this.video.duration);
-                    _this.durationText = convertInTimeText(duration);
+                    _this.durationText = _this.durationInTime(_this.video.duration);
 
                     // Set progress bar
                     var currentTime = 0;
@@ -71,7 +68,7 @@ Vue.component('video-player', {
                     $(progressBar).slider({
                         orientation: "horizontal",
                         range: "min",
-                        max: duration,
+                        max: _this.video.duration,
                         value: 0,
                         stop: _this.seek,
                         slide: _this.seek
@@ -103,18 +100,84 @@ Vue.component('video-player', {
                         }
                     });
 
-                    // Set hover effect on controls
-                    var videoControls = _this.$refs.videoControls;
-                    $(videoControls).hover(function () {
-                        $(this).css('opacity', 1);
-                    }, function () {
-                        $(this).css('opacity', 0);
-                    })
+                    // Listen for events
+                    _this.video.addEventListener('playing', _this.playingEvent)
+                    _this.video.addEventListener('pause', _this.pausedEvent)
+                    _this.video.addEventListener('seeked', _this.seekedEvent)
 
                     clearInterval(handle);
                 }
             }, 500);
 
+        },
+
+        playingEvent: function () {
+            console.log('playing');
+            this.status = 'playing';
+
+            // Attach hover effect on controls
+            this.attachControlHoverEvent();
+
+        },
+
+        pausedEvent: function () {
+            console.log('paused');
+            this.status = 'stopped';
+
+            // Detach hover effect on controls
+            this.detachControlHoverEvent();
+
+        },
+
+        bufferingEvent: function (event) {
+            console.log('buffering');
+            this.isBuffering = event.buffering;
+        },
+
+        seekedEvent: function (event) {
+            console.log('seeked', event);
+
+            var video = event.target;
+            this.currentTimeText = convertInTimeText(Math.round(video.currentTime));
+
+            // Fire video end event
+            if (this.videoEnded()) this.endedEvent(new CustomEvent('endedEvent', { detail: { target: this.video } }));
+        },
+
+        endedEvent: function (event) {
+            console.log('ended');
+            this.pause();
+        },
+
+        trackChangedEvent: function (event) {
+            var tracks = this.shakaPlayer.getVariantTracks();
+            this.selectedTrack = this.activeTrack();
+        },
+
+        durationInTime: function (time) {
+            var duration = Math.round(this.video.duration);
+            return convertInTimeText(duration);
+        },
+
+        attachControlHoverEvent: function () {
+            var videoControls = this.$refs.videoControls;
+            $(videoControls).hover(this.showControl, this.hideControl);
+        },
+
+        detachControlHoverEvent: function () {
+            var videoControls = this.$refs.videoControls;
+            this.showControl();
+            $(videoControls).unbind('mouseenter mouseleave');
+        },
+
+        showControl: function () {
+            var videoControls = this.$refs.videoControls;
+            $(videoControls).css('opacity', 1);
+        },
+
+        hideControl: function () {
+            var videoControls = this.$refs.videoControls;
+            $(videoControls).css('opacity', 0);
         },
 
         handleProgress: function () {
@@ -132,10 +195,10 @@ Vue.component('video-player', {
                 var progressBar = _this.$refs.progressBar;
                 $(progressBar).slider("value", Math.round(currentTime));
 
-                // Show reload icon
+                // Fire video end event
                 if (_this.videoEnded()) {
-                    _this.status = 'ended';
-                    _this.handle = null;
+                    _this.endedEvent(new CustomEvent('endedEvent', { target: _this.video }));
+                    console.log(_this.handle);
                 }
 
             }, 1000);
@@ -145,16 +208,12 @@ Vue.component('video-player', {
             return Math.round(this.video.currentTime) === Math.round(this.video.duration);
         },
 
-        buffering: function (event) {
-            console.log(event.buffering);
-            this.isBuffering = event.buffering;
+        videoPlaying: function () {
+            return this.shakaPlayer;
         },
 
-        trackChanged: function (event) {
-            var _this = this;
-            var tracks = this.shakaPlayer.getVariantTracks();
-            _this.selectedTrack = this.activeTrack();
-            console.log(_this.selectedTrack);
+        buffering: function (event) {
+            this.isBuffering = event.buffering;
         },
 
         activeTrack: function () {
@@ -167,6 +226,16 @@ Vue.component('video-player', {
             return activeTrackIndex;
         },
 
+        play: function () {
+            this.video.play();
+            this.handle = this.handleProgress();
+        },
+
+        pause: function () {
+            this.video.pause();
+            clearInterval(this.handle);
+        },
+
         playPause: function () {
 
             if (this.video.paused || this.videoEnded()) {
@@ -174,19 +243,14 @@ Vue.component('video-player', {
                 // Start from beginning if video ended.
                 if (this.videoEnded()) this.video.currentTime = 0;
 
-                this.status = 'playing';
-                this.video.play();
-
-                this.handle = this.handleProgress();
+                this.play();
 
                 return;
             }
 
             if (!this.video.paused) {
-                this.status = 'stopped';
-                this.video.pause();
 
-                clearInterval(this.handle);
+                this.pause();
 
                 return;
             }
